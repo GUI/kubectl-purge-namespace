@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+for namespace in "$@"; do
+  mapfile -t resources < <(kubectl --namespace "$namespace" get pod,service,job,deployment.apps,statefulset.apps,ingress,pvc,configmap,secret -o name | grep -v "secret/default-token")
+
+  if [ ${#resources[@]} -eq 0 ]; then
+    echo "No resources in namespace '$namespace' to delete."
+    continue
+  fi
+
+  for resource in "${resources[@]}"; do
+    echo "$namespace: $resource"
+  done
+
+  echo
+  read -p "Delete the above resources? (y/n) " -r confirm
+  if [ "$confirm" = "y" ] || [ "$confirm" = "Y" ]; then
+    set -x
+    kubectl --namespace "$namespace" delete "${resources[@]}"
+    { set +x; } 2>/dev/null
+  fi
+done
