@@ -16,7 +16,13 @@ for namespace in "$@"; do
   done
 
   echo
-  read -p "Delete the above resources? (y/n) " -r confirm
+  confirm="n"
+  if [ "${CONFIRM_PURGE:-}" = "true" ]; then
+    confirm="y"
+  fi
+  if [ "$confirm" != "y" ]; then
+    read -p "Delete the above resources? (y/n) " -r confirm
+  fi
   if [ "$confirm" = "y" ] || [ "$confirm" = "Y" ]; then
     set -x
     kubectl --namespace "$namespace" delete "${resources[@]}"
