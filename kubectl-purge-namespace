@@ -4,7 +4,7 @@ set -Eeuo pipefail
 
 for namespace in "$@"; do
   resources=()
-  while IFS='' read -r line; do resources+=("$line"); done < <(kubectl --namespace "$namespace" get pod,service,job,deployment.apps,statefulset.apps,ingress,pvc,configmap,secret,poddisruptionbudget -o name | grep -Ev "(secret/default-token|configmap/kube-root-ca.crt)")
+  while IFS='' read -r line; do resources+=("$line"); done < <(kubectl --namespace "$namespace" get pod,service,job,deployment.apps,statefulset.apps,ingress,pvc,configmap,secret,poddisruptionbudget,cronjob,serviceaccount,role -o name | grep -Ev "(secret/default-token|configmap/kube-root-ca.crt|serviceaccount/default)")
 
   if [ ${#resources[@]} -eq 0 ]; then
     echo "No resources in namespace '$namespace' to delete."
